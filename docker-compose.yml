@@ -1,0 +1,22 @@
+# Compose V2 — 'version' key is obsolete and removed.
+# Run the pipeline:
+#   docker compose run --rm app --input testdata/sample.wav --targets es,fr
+#
+# Run --help (no AWS credentials needed):
+#   docker compose run --rm app --help
+
+services:
+  app:
+    build: .
+    # No 'entrypoint' override here — the Dockerfile ENTRYPOINT already sets
+    # "python -m src.cli", so:  docker compose run --rm app --input ... works.
+    env_file:
+      - path: .env
+        required: false   # Don't fail when .env doesn't exist (e.g. CI, --help)
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
+      - S3_STAGING_BUCKET=${S3_STAGING_BUCKET:-}
+    volumes:
+      - .:/app
